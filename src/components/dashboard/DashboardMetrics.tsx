@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Package, BarChart, AlertTriangle, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +24,8 @@ export const DashboardMetrics: React.FC<DashboardMetricsProps> = ({
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
+          // ✅ CORREÇÃO APLICADA AQUI
+          <Skeleton key={`metric-skeleton-${i}`} className="h-32" />
         ))}
       </div>
     );

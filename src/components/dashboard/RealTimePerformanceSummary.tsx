@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -135,7 +134,8 @@ export const RealTimePerformanceSummary: React.FC = () => {
         <CardContent>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-2">
+              // ✅ CORREÇÃO APLICADA AQUI
+              <div key={`summary-skeleton-${i}`} className="space-y-2">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-2 w-full" />
               </div>
