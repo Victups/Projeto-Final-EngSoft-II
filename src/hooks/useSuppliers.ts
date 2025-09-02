@@ -142,61 +142,61 @@ export function useSuppliers() {
   const useCreateSupplier = () => {
     const [isCreating, setIsCreating] = useState(false);
 
+    // Helper for frontend validation
+    const validateSupplier = (supplier: Partial<Supplier>) => {
+      if (!supplier.name || supplier.name.trim() === '') {
+        throw new Error('Nome do fornecedor é obrigatório');
+      }
+      if (!supplier.cnpj || supplier.cnpj.trim() === '') {
+        throw new Error('CNPJ é obrigatório');
+      }
+    };
+
+    // Helper for cleaning supplier fields
+    const cleanSupplierFields = (supplier: Partial<Supplier>) => ({
+      ...supplier,
+      name: supplier.name?.trim(),
+      cnpj: supplier.cnpj?.trim(),
+      contactName: supplier.contactName?.trim() || null,
+      email: supplier.email?.trim() || null,
+      phone: supplier.phone?.trim() || null,
+      address: supplier.address?.trim() || null,
+      notes: supplier.notes?.trim() || null,
+    });
+
     return {
       mutateAsync: async (supplier: Partial<Supplier>) => {
         setIsCreating(true);
         try {
           SecureLogger.info('Criando novo fornecedor');
-          
-          // Validação obrigatória no frontend
-          if (!supplier.name || supplier.name.trim() === '') {
-            throw new Error('Nome do fornecedor é obrigatório');
-          }
-          
-          if (!supplier.cnpj || supplier.cnpj.trim() === '') {
-            throw new Error('CNPJ é obrigatório');
-          }
-          
-          // Limpar campos vazios antes de enviar
-          const cleanedSupplier = {
-            ...supplier,
-            name: supplier.name.trim(),
-            cnpj: supplier.cnpj.trim(),
-            contactName: supplier.contactName && supplier.contactName.trim() !== '' ? supplier.contactName.trim() : null,
-            email: supplier.email && supplier.email.trim() !== '' ? supplier.email.trim() : null,
-            phone: supplier.phone && supplier.phone.trim() !== '' ? supplier.phone.trim() : null,
-            address: supplier.address && supplier.address.trim() !== '' ? supplier.address.trim() : null,
-            notes: supplier.notes && supplier.notes.trim() !== '' ? supplier.notes.trim() : null
-          };
-          
+          validateSupplier(supplier);
+
+          const cleanedSupplier = cleanSupplierFields(supplier);
           console.log('📝 [SUPPLIER_HOOK] Dados limpos para inserção:', cleanedSupplier);
-          
+
           const dbSupplier = mapSupplierToDbSupplier(cleanedSupplier, user?.id);
-          
+
           const { data, error } = await supabase
             .from('suppliers')
             .insert(dbSupplier)
             .select()
             .single();
-            
+
           if (error) {
             console.error('❌ [SUPPLIER_HOOK] Erro detalhado:', error);
-            
+
             if (error.code === '23505' && error.message.includes('suppliers_cnpj_key')) {
               throw new Error('Este CNPJ já está cadastrado para outro fornecedor');
             }
-            
+
             SecureLogger.error('Erro ao criar fornecedor', error);
             throw new Error(`Erro ao criar fornecedor: ${error.message}`);
           }
-          
+
           SecureLogger.success('Fornecedor criado com sucesso');
-          
-          // Refresh suppliers list
           await fetchSuppliers();
-          
           toast.success("Fornecedor criado com sucesso!");
-          
+
           return mapDbSupplierToSupplier(data);
         } catch (error: any) {
           console.error('❌ [SUPPLIER_HOOK] Erro na criação do fornecedor:', error);
