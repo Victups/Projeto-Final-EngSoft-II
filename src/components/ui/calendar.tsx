@@ -7,6 +7,11 @@ import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+// ✅ COMPONENTES DE ÍCONE EXTRAÍDOS
+// Definidos fora do componente principal para evitar recriações desnecessárias.
+const IconLeft = () => <ChevronLeft className="h-4 w-4" />;
+const IconRight = () => <ChevronRight className="h-4 w-4" />;
+
 function Calendar({
   className,
   classNames,
@@ -51,9 +56,11 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
+      // ✅ REFERÊNCIAS AOS NOVOS COMPONENTES
+      // O código aqui fica mais limpo e performático.
       components={{
-        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        IconLeft,
+        IconRight,
       }}
       {...props}
     />
